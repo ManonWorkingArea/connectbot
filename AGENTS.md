@@ -6,16 +6,25 @@ ConnectBot is a Gradle Android SSH client project with `oss` and `google` produc
 
 ## Build, Test, and Development Commands
 
-Use the checked-in Gradle wrapper:
+Deliverable APKs/AABs are built **only** by GitHub Actions — `.github/workflows/android-apk.yml` (unsigned CI
+build) and `.github/workflows/signed-release.yml` (release). Never package locally; the Hermes `terminal` hook
+blocks `assemble*`/`bundle*`/`install*` in this workspace and the coder rule forbids it too.
 
-- `./gradlew assemble` builds all variants.
-- `./gradlew :app:assembleOssDebug` builds the open-source debug APK.
+Trigger and collect a build:
+
+- `gh workflow run android-apk.yml --ref <branch>` → `gh run watch <run-id>` → `gh run download <run-id> -n <artifact>`
+
+Use the checked-in Gradle wrapper for verification only:
+
 - `./gradlew test` runs local JVM/Robolectric tests.
-- `./gradlew connectedAndroidTest` runs device/emulator instrumentation tests.
-- `./gradlew connectedOssDebugAndroidTest` and `./gradlew connectedGoogleDebugAndroidTest` run flavor-specific instrumentation tests.
 - `./gradlew lint` runs Android lint with `app/lint.xml`.
 - `./gradlew spotlessCheck` verifies formatting; `./gradlew spotlessApply` formats supported files.
 - `./gradlew check test` runs the standard verification set used before submitting changes.
+- `./gradlew compileOssDebugKotlin` is the compile check when you need one without packaging.
+- `./gradlew connectedAndroidTest` runs device/emulator instrumentation tests;
+  `./gradlew connectedOssDebugAndroidTest` and `./gradlew connectedGoogleDebugAndroidTest` run flavor-specific ones.
+
+Signing keys and keystores live in GitHub Actions secrets only — never commit them, never add them locally.
 
 ## Coding Style & Naming Conventions
 
