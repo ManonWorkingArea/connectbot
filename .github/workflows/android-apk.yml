@@ -36,34 +36,15 @@ jobs:
         with:
           packages: 'cmdline-tools;latest platform-tools build-tools;34.0.0 cmake;3.22.1'
 
-      - name: Decode signing keystore
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        run: |
-          set -euo pipefail
-          test -n "$ANDROID_KEYSTORE_BASE64"
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/selfuse.jks"
-
-      - name: Assemble OSS debug APK (self-use key)
-        env:
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: |
-          ./gradlew :app:assembleOssDebug \
-            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/selfuse.jks" \
-            -Pandroid.injected.signing.store.password="$ANDROID_KEYSTORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="$ANDROID_KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD"
-
-      - name: Verify APK signature (must be the self-use key)
-        run: |
-          set -euo pipefail
-          apk=$(ls app/build/outputs/apk/oss/debug/*.apk | head -1)
-          echo "apk: $apk"
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs "$apk" | tee /tmp/certs.txt
-          grep -q "963c658c7569909378dd3bfda9d1e8811039478af9dd1083452c7bbb6c4217ff" /tmp/certs.txt \
-            || { echo "::error::APK ไม่ได้เซ็นด้วย self-use key"; exit 1; }
+      - name: Build + sign APK (self-use key)
+        uses: ManonWorkingArea/ci-android@v1
+        with:
+          gradle-command: ./gradlew :app:assembleOssDebug
+          apk-path: app/build/outputs/apk/oss/debug/app-oss-debug.apk
+          keystore-base64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          keystore-password: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          key-alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          key-password: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
