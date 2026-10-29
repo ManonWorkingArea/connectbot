@@ -62,7 +62,7 @@ jobs:
           apk=$(ls app/build/outputs/apk/oss/debug/*.apk | head -1)
           echo "apk: $apk"
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs "$apk" | tee /tmp/certs.txt
-          grep -q "96:3c:65:8c:75:69:90:93:78:dd:3b:fd:a9:d1:e8:81:10:39:47:8a:f9:dd:10:83:45:2c:7b:bb:6c:42:17:ff" /tmp/certs.txt \
+          grep -q "963c658c7569909378dd3bfda9d1e8811039478af9dd1083452c7bbb6c4217ff" /tmp/certs.txt \
             || { echo "::error::APK ไม่ได้เซ็นด้วย self-use key"; exit 1; }
 
       - name: Upload APK
