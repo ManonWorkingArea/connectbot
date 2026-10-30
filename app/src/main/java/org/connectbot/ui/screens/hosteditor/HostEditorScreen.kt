@@ -591,33 +591,37 @@ fun HostEditorScreenContent(
             }
 
             // SSH Auth agent
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-            SwitchPreference(
-                title = stringResource(R.string.hostpref_authagent_title),
-                checked = uiState.useAuthAgent != "no",
-                onCheckedChange = { checked ->
-                    onUseAuthAgentChange(if (checked) "yes" else "no")
-                },
-            )
-
-            if (uiState.useAuthAgent != "no") {
+            if (showAdvancedOptions) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
                 SwitchPreference(
-                    title = stringResource(R.string.hostpref_authagent_with_confirmation),
-                    checked = uiState.useAuthAgent == "confirm",
+                    title = stringResource(R.string.hostpref_authagent_title),
+                    checked = uiState.useAuthAgent != "no",
                     onCheckedChange = { checked ->
-                        onUseAuthAgentChange(if (checked) "confirm" else "yes")
+                        onUseAuthAgentChange(if (checked) "yes" else "no")
                     },
                 )
+
+                if (uiState.useAuthAgent != "no") {
+                    SwitchPreference(
+                        title = stringResource(R.string.hostpref_authagent_with_confirmation),
+                        checked = uiState.useAuthAgent == "confirm",
+                        onCheckedChange = { checked ->
+                            onUseAuthAgentChange(if (checked) "confirm" else "yes")
+                        },
+                    )
+                }
             }
 
             // Compression
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-            SwitchPreference(
-                title = stringResource(R.string.hostpref_compression_title),
-                summary = stringResource(R.string.hostpref_compression_summary),
-                checked = uiState.compression,
-                onCheckedChange = onCompressionChange,
-            )
+            if (showAdvancedOptions) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                SwitchPreference(
+                    title = stringResource(R.string.hostpref_compression_title),
+                    summary = stringResource(R.string.hostpref_compression_summary),
+                    checked = uiState.compression,
+                    onCheckedChange = onCompressionChange,
+                )
+            }
 
             // Address-family overrides are less common than authentication and routing settings.
             if (showAdvancedOptions && (uiState.protocol == "ssh" || uiState.protocol == "mosh")) {
@@ -631,59 +635,67 @@ fun HostEditorScreenContent(
             }
 
             // Want session
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-            SwitchPreference(
-                title = stringResource(R.string.hostpref_wantsession_title),
-                summary = stringResource(R.string.hostpref_wantsession_summary),
-                checked = uiState.wantSession,
-                onCheckedChange = onWantSessionChange,
-            )
+            if (showAdvancedOptions) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                SwitchPreference(
+                    title = stringResource(R.string.hostpref_wantsession_title),
+                    summary = stringResource(R.string.hostpref_wantsession_summary),
+                    checked = uiState.wantSession,
+                    onCheckedChange = onWantSessionChange,
+                )
+            }
 
             // Stay connected
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-            SwitchPreference(
-                title = stringResource(R.string.hostpref_stayconnected_title),
-                summary = stringResource(R.string.hostpref_stayconnected_summary),
-                checked = uiState.stayConnected,
-                onCheckedChange = onStayConnectedChange,
-            )
+            if (showAdvancedOptions) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                SwitchPreference(
+                    title = stringResource(R.string.hostpref_stayconnected_title),
+                    summary = stringResource(R.string.hostpref_stayconnected_summary),
+                    checked = uiState.stayConnected,
+                    onCheckedChange = onStayConnectedChange,
+                )
+            }
 
             // Quick disconnect
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-            SwitchPreference(
-                title = stringResource(R.string.hostpref_quickdisconnect_title),
-                summary = stringResource(R.string.hostpref_quickdisconnect_summary),
-                checked = uiState.quickDisconnect,
-                onCheckedChange = onQuickDisconnectChange,
-            )
+            if (showAdvancedOptions) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                SwitchPreference(
+                    title = stringResource(R.string.hostpref_quickdisconnect_title),
+                    summary = stringResource(R.string.hostpref_quickdisconnect_summary),
+                    checked = uiState.quickDisconnect,
+                    onCheckedChange = onQuickDisconnectChange,
+                )
+            }
 
             // Post-login automation
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-            Surface(
-                onClick = onEditAutomation,
-                enabled = !uiState.isSaving,
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            ) {
-                Row(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+            if (showAdvancedOptions) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                Surface(
+                    onClick = onEditAutomation,
+                    enabled = !uiState.isSaving,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.hostpref_postlogin_title), style = MaterialTheme.typography.bodyLarge)
-                        Text(
-                            if (hostId == EntityIds.NONE) {
-                                stringResource(R.string.automation_draft_host)
-                            } else {
-                                pluralStringResource(R.plurals.automation_count, uiState.automationCount, uiState.automationCount)
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    Row(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(stringResource(R.string.hostpref_postlogin_title), style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                if (hostId == EntityIds.NONE) {
+                                    stringResource(R.string.automation_draft_host)
+                                } else {
+                                    pluralStringResource(R.plurals.automation_count, uiState.automationCount, uiState.automationCount)
+                                },
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
                     }
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
                 }
             }
         }
