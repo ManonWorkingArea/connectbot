@@ -488,7 +488,7 @@ private fun ConsoleTerminalPage(
                     .testTag("terminal_keyboard"),
             ) {
                 TerminalKeyboard(
-                    modifier = Modifier.heightIn(max = consoleHeight / 2).onSizeChanged { keyboardHeight = with(keyboardDensity) { it.height.toDp() } },
+                    modifier = Modifier.heightIn(max = minOf(consoleHeight / 3, 168.dp)).onSizeChanged { keyboardHeight = with(keyboardDensity) { it.height.toDp() } },
                     bridge = bridge,
                     onInteraction = { handleTerminalInteraction() },
                     onHideIme = {
@@ -590,7 +590,7 @@ fun ConsoleScreen(
 
     // Read preferences
     val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
-    val keyboardAlwaysVisible = remember { prefs.getBoolean(PreferenceConstants.KEY_ALWAYS_VISIBLE, true) }
+    val keyboardAlwaysVisible = remember { prefs.getBoolean(PreferenceConstants.KEY_ALWAYS_VISIBLE, false) }
     val swipeSessionsEnabled = remember {
         prefs.getBoolean(PreferenceConstants.SWIPE_SESSIONS, false)
     }
